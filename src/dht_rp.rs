@@ -27,11 +27,10 @@ impl<'a> DHTSensor<'a> {
     pub fn read(&mut self) -> Result<DTHResponse, DHTSensorError> {
         match self.read_raw_data() {
             Ok(data) => {
-                let humidity = ((data[0] << 8) | data[1]) as f32 / 10.0;
-                let mut temperature = (((data[2] & 0x7f) << 8) | data[3]) as f32 / 10.0;
-                if data[2] & 0x80 != 0 {
-                    temperature = -temperature;
-                }
+                let humidity_data: &[u16; 2] = &data[0..2].try_into().unwrap();
+                let humidity = humidity(humidity_data);
+                let temperature_data: &[u16; 2] = &data[2..4].try_into().unwrap();
+                let temperature = temperature(temperature_data);
                 if humidity <= 100.0 {
                     let response = DTHResponse {
                         humidity,
@@ -67,7 +66,10 @@ impl<'a> DHTSensor<'a> {
             // Wake up the sensor
             self.pin.set_as_output();
             self.pin.set_low();
+            #[cfg(feature = "dht2X")]
             block_for(Duration::from_micros(1100u64));
+            #[cfg(feature = "dht1X")]
+            block_for(Duration::from_millis(20u64));
 
             // Ask for data
             self.pin.set_high();
@@ -130,4 +132,31 @@ impl<'a> DHTSensor<'a> {
     }
 }
 
+#[cfg(feature = "dht2X")]
+fn humidity(data: &[u16]) -> f32 {
+    ((data[0] << 8) | data[1]) as f32 / 10.0
+}
+
+#[cfg(feature = "dht1X")]
+fn humidity(data: &[u16; 2]) -> f32 {
+    (data[0] + data[1]) as f32 / 10.0
+}
+
+#[cfg(feature = "dht2X")]
+fn temperature(data: &[u16]) -> f32 {
+    let mut temperature = (((data[0] & 0x7F) << 8) | data[1]) as f32 / 10.0;
+    if data[0] & 0x80 != 0 {
+        temperature = -temperature;
+    }
+    temperature
+}
+
+#[cfg(feature = "dht1X")]
+fn temperature(data: &[u16; 2]) -> f32 {
+    let mut temperature = (data[0] + data[1]) as f32 / 10.0;
+    if data[0] & 0x80 != 0 {
+        temperature = -temperature;
+    }
+    temperature
+}
 
