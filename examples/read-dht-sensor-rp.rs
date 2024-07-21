@@ -5,9 +5,8 @@
 use embassy_executor::Spawner;
 use embassy_rp::gpio::{AnyPin, Flex};
 use embassy_time::{Duration, Timer};
-use embassy_dht_sensor::dht_rp::DHTSensor;
+use embassy_dht_sensor::{DHTSensor, DHTSensorError};
 use {defmt::info, defmt_rtt as _, panic_probe as _};
-use embassy_dht_sensor::DHTSensorError;
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) -> ! {

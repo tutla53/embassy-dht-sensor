@@ -2,7 +2,10 @@
 #![no_main]
 
 #[cfg(feature = "rp2040")]
-pub mod dht_rp;
+pub use dht_rp::{DHTSensor};
+
+#[cfg(feature = "rp2040")]
+mod dht_rp;
 
 #[derive(Debug, Clone)]
 pub enum DHTSensorError {

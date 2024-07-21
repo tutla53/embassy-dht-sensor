@@ -132,31 +132,44 @@ impl<'a> DHTSensor<'a> {
     }
 }
 
-#[cfg(feature = "dht2X")]
-fn humidity(data: &[u16]) -> f32 {
-    ((data[0] << 8) | data[1]) as f32 / 10.0
-}
-
-#[cfg(feature = "dht1X")]
-fn humidity(data: &[u16; 2]) -> f32 {
-    (data[0] + data[1]) as f32 / 10.0
-}
-
-#[cfg(feature = "dht2X")]
-fn temperature(data: &[u16]) -> f32 {
-    let mut temperature = (((data[0] & 0x7F) << 8) | data[1]) as f32 / 10.0;
-    if data[0] & 0x80 != 0 {
-        temperature = -temperature;
+#[cfg(feature = "dht2x")]
+mod dht2x {
+    pub(crate) fn humidity(data: &[u16; 2]) -> f32 {
+        ((data[0] << 8) | data[1]) as f32 / 10.0
     }
-    temperature
-}
 
-#[cfg(feature = "dht1X")]
-fn temperature(data: &[u16; 2]) -> f32 {
-    let mut temperature = (data[0] + data[1]) as f32 / 10.0;
-    if data[0] & 0x80 != 0 {
-        temperature = -temperature;
+    pub(crate) fn temperature(data: &[u16; 2]) -> f32 {
+        let mut temperature = (((data[0] & 0x7F) << 8) | data[1]) as f32 / 10.0;
+        if data[0] & 0x80 != 0 {
+            temperature = -temperature;
+        }
+        temperature
     }
-    temperature
 }
 
+#[cfg(feature = "dht1x")]
+mod dht1x {
+    pub(crate) fn humidity(data: &[u16; 2]) -> f32 {
+        (data[0] + data[1]) as f32 / 10.0
+    }
+
+    pub(crate) fn temperature(data: &[u16; 2]) -> f32 {
+        let mut temperature = (data[0] + data[1]) as f32 / 10.0;
+        if data[0] & 0x80 != 0 {
+            temperature = -temperature;
+        }
+        temperature
+    }
+}
+
+#[cfg(not(any(feature = "dht1x", feature = "dht2x")))]
+compile_error!("You must select a DHT sensor model with a feature flag: dht1x or dht2x");
+
+#[cfg(all(feature = "dht1x", feature = "dht2x"))]
+compile_error!("You must select only one DHT sensor model with a feature flag: dht1x or dht2x");
+
+#[cfg(feature = "dht1x")]
+use dht1x::{humidity, temperature};
+
+#[cfg(feature = "dht2x")]
+use dht2x::{humidity, temperature};

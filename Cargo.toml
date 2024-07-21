@@ -7,11 +7,11 @@ license = "MIT OR Apache-2.0"
 description = "DHT sensor driver for the Embassy async runtime"
 
 [features]
-default = ["rp2040", "dht2X"]
+default = ["rp2040", "dht2x"]
 rp2040 = ["dep:embassy-rp"]
 examples = ["dep:defmt", "dep:defmt-rtt", "dep:panic-probe"]
-dht1X = []
-dht2X = []
+dht1x = []
+dht2x = []
 
 [[example]]
 name = "read-dht-sensor-rp"
