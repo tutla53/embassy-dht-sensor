@@ -66,9 +66,9 @@ impl<'a> DHTSensor<'a> {
             // Wake up the sensor
             self.pin.set_as_output();
             self.pin.set_low();
-            #[cfg(feature = "dht2X")]
+            #[cfg(feature = "dht2x")]
             block_for(Duration::from_micros(1100u64));
-            #[cfg(feature = "dht1X")]
+            #[cfg(feature = "dht1x")]
             block_for(Duration::from_millis(20u64));
 
             // Ask for data

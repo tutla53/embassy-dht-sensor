@@ -16,7 +16,7 @@ dht2x = []
 [[example]]
 name = "read-dht-sensor-rp"
 path = "examples/read-dht-sensor-rp.rs"
-required-features = ["rp2040", "examples"]
+required-features = ["rp2040", "examples", "dht2x"]
 
 [lib]
 name = "embassy_dht_sensor"
