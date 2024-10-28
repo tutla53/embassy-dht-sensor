@@ -1,5 +1,5 @@
 use cortex_m::interrupt::free;
-use embassy_rp::gpio::{AnyPin, Flex, Level, Pull};
+use embassy_rp::gpio::{Flex, Level, Pull};
 use embassy_rp::gpio::Level::{High, Low};
 use embassy_time::{block_for, Duration};
 use crate::{DHTSensorError, HIGH_LEVEL_THRESHOLD, LOW_LEVEL_THRESHOLD, WAIT_FOR_READINESS_LEVEL_THRESHOLD};
@@ -12,12 +12,12 @@ pub struct DTHResponse {
 }
 
 pub struct DHTSensor<'a> {
-    pin: Flex<'a, AnyPin>,
+    pin: Flex<'a>,
     last_response: Option<DTHResponse>,
 }
 
 impl<'a> DHTSensor<'a> {
-    pub fn new(pin: Flex<'a, AnyPin>) -> Self {
+    pub fn new(pin: Flex<'a>) -> Self {
         DHTSensor {
             pin,
             last_response: None,
